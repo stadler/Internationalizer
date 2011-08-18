@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, InternationalizerActivity!</string>
     <string name="app_name">Internationalizer</string>
+    <string name="batch">Batch Update</string>
+    <string name="single">Single Update</string>
 </resources>
