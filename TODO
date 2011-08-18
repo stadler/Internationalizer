@@ -1,0 +1,46 @@
+-1 Intro
+*********
+The Internationalizer App will transform all your national numbers to 
+international numbers that can be called from every country.
+But therefore it needs to now from which country (most of) your numbers are.
+
+0. Overview:
+************
+1. Batch internationalize all contacts
+2. Internationalize single contacts
+3. Preferences
+-> Default Country
+-> Logs?
+-> Donate?
+-> About
+
+1.1. Batch:
+***********
+In order to make your numbers international you have to define from which country the national numbers are:
+Drop-Down Box
+
+1.2. Preview
+****************
+...
+Contact XY
+-> 111 -> +111
+-> 22 unchanged
+-> 333 -> +333
+... 
+---------------
+x numbers will be Internationalized
+
+Button: Do it! -> Toast x numbers internationalized
+
+
+2.1 ContactsList
+****************
+Tip and update + all numbers -> All done.
+[Brainstorming:
+
+Multiselect or Tip and update?
+Update contact (all numbers) or list single numbers?
+
+( Multiselect contacts&number -> Maximum detail, tedious to do and implement)
+*** Tip and update + all numbers -> All done.***
+}
