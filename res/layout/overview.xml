@@ -11,7 +11,7 @@
     android:layout_width="wrap_content" 
     android:layout_gravity="center"
     android:layout_marginTop="100sp"
-    android:padding="5sp"/>
+    android:padding="30sp"/>
 
   <Button android:id="@+id/single_button" 
     android:text="@string/single"
@@ -19,6 +19,6 @@
     android:layout_width="wrap_content"
     android:layout_gravity="center"
     android:layout_marginTop="20sp"
-    android:padding="5sp"/>
+    android:padding="30sp"/>
 
 </LinearLayout>
