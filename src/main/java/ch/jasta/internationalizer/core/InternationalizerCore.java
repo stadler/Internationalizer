@@ -11,6 +11,11 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+
 import ch.jasta.internationalizer.model.Contact;
 import ch.jasta.internationalizer.model.Number;
 
@@ -66,7 +71,12 @@ public class InternationalizerCore {
     int totalUpdatedRows = 0;
     for (Number currentNumber : contact.getNumbers()) {
       // Write to contact
-      String internationalNumber = currentNumber.getInternationalNumber(countryCode);
+      String internationalNumber;
+      try {
+        internationalNumber = getInternationalNumber(currentNumber.getNumber(), countryCode);
+      } catch (NumberParseException e) {
+        continue;
+      }
       currentNumber.setNumber(internationalNumber);
       
       // Write to content provider
@@ -85,5 +95,15 @@ public class InternationalizerCore {
       totalUpdatedNumbers += updateContact(cr, contact, contryCode);
     }
     return totalUpdatedNumbers;
+  }
+  
+  public static String getInternationalNumber(String nationalNumber, String twoLetterCountry) throws NumberParseException {
+    PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    PhoneNumber phoneNumber = phoneUtil.parse(nationalNumber, twoLetterCountry);
+    if (!phoneUtil.isValidNumber(phoneNumber)) {
+      throw new IllegalArgumentException("Phone number "+ phoneNumber +" is not valid.");
+    }
+    String internationalNumber = phoneUtil.format(phoneNumber, PhoneNumberFormat.INTERNATIONAL);
+    return internationalNumber;
   }
 }
