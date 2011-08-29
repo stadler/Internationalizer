@@ -1,6 +1,19 @@
 package ch.jasta.internationalizer.activities;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+
+import ch.jasta.internationalizer.R;
 
 /**
  * Gives a short introduction about the application and asks for the country.
@@ -10,5 +23,32 @@ import android.app.Activity;
  */
 public class IntroActivity extends Activity {
 
-  //TODO
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.country_selection);
+    
+    List<String> isoCountries = Arrays.asList(Locale.getISOCountries());
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        this, android.R.layout.simple_spinner_item, isoCountries);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    
+    Spinner s = (Spinner) findViewById(R.id.country_selection_spinner);
+    s.setAdapter(adapter);
+    
+    Button internationalizButton = (Button) findViewById(R.id.internationalize_button);
+    internationalizButton.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(v.getContext(), ContactListActivity.class);
+        Spinner s = (Spinner) findViewById(R.id.country_selection_spinner);
+        String selectedCountry = (String) s.getSelectedItem();
+        intent.putExtra("COUNTRY", selectedCountry);
+        startActivity(intent);
+      }
+      
+    });
+  }
+  
 }

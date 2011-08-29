@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Internationalizer</string>
-    <string name="batch">Batch Update</string>
-    <string name="single">Single Update</string>
-    <string name="update_all">Update all</string>
+  <string name="app_name">Internationalizer</string>
+  <string name="update_all">Update all</string>
+  <string name="country">Country</string>
+  <string name="donate">Donate</string>
+  <string name="intro_text">Welcome!\nIn order to translate all your numbers to the international phone number format you have
+    to select the country from which most of you national numbers are:</string>
+  <string name="country_title">Select a country:</string>
+  <string name="internationalize">Internationalize!</string>
+  
 </resources>
