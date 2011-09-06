@@ -23,14 +23,14 @@ public class Contact {
   }
   
   public List<Number> getNumbers() {
+    if (numbers == null) {
+      numbers = new LinkedList<Number>();
+    }
     return numbers;
   }
   
   public void addNumber(Number number) {
-    if (numbers == null) {
-      this.numbers = new LinkedList<Number>();
-    }
-    numbers.add(number);
+    getNumbers().add(number);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class Contact {
     builder
     .append(displayName)
     .append(":");
-    for (Number number : numbers) {
+    for (Number number : getNumbers()) {
       builder.append("\n").append(number);
     }
     return builder.toString();

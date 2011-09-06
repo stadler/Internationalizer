@@ -8,5 +8,6 @@
     to select the country from which most of you national numbers are:</string>
   <string name="country_title">Select a country:</string>
   <string name="internationalize">Internationalize!</string>
+  <string name="test_data">Generate Test Contacts</string>
   
 </resources>

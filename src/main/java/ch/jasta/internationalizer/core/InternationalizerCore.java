@@ -8,8 +8,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -26,37 +26,26 @@ import ch.jasta.internationalizer.model.Number;
  */
 public class InternationalizerCore {
   
-  private static final Uri CONTACTS_URI = ContactsContract.Contacts.CONTENT_URI;
-  private static final String CONTACT_ID = ContactsContract.Contacts._ID;
-  private static final String DISPLAY_NAME = ContactsContract.Contacts.DISPLAY_NAME;
-  private static final String HAS_PHONE_NUMBER = ContactsContract.Contacts.HAS_PHONE_NUMBER;
-  
-  private static final Uri PHONES_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-  private static final String PHONE_CONTACT_ID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
-  private static final String PHONE_NUM = ContactsContract.CommonDataKinds.Phone.NUMBER;
-  private static final String PHONE_TYPE = ContactsContract.CommonDataKinds.Phone.TYPE;
-  private static final String PHONE_ID = ContactsContract.CommonDataKinds.Phone._ID;
-  
   public static List<Contact> getContacts(ContentResolver cr) {
     List<Contact> contacts = new LinkedList<Contact>();
-    Cursor contactsCursor = cr.query(CONTACTS_URI, null, null, null, null);
+    Cursor contactsCursor = cr.query(Contacts.CONTENT_URI, null, null, null, null);
     if (contactsCursor.getCount() > 0) {
 
       // Loop over all contacts
       while (contactsCursor.moveToNext()) {
 
-        String id = contactsCursor.getString(contactsCursor.getColumnIndex(CONTACT_ID));
-        String displayName = contactsCursor.getString(contactsCursor.getColumnIndex(DISPLAY_NAME));
+        String id = contactsCursor.getString(contactsCursor.getColumnIndex(Contacts._ID));
+        String displayName = contactsCursor.getString(contactsCursor.getColumnIndex(Contacts.DISPLAY_NAME));
         Contact contact = new Contact(id, displayName);
         contacts.add(contact);
-        if (Integer.parseInt(contactsCursor.getString(contactsCursor.getColumnIndex(HAS_PHONE_NUMBER))) > 0) {
-          Cursor phonesCursor = cr.query(PHONES_URI, null, PHONE_CONTACT_ID + " = ?", new String[]{id},
+        if (Integer.parseInt(contactsCursor.getString(contactsCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER))) > 0) {
+          Cursor phonesCursor = cr.query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + " = ?", new String[]{id},
               null);
           // Loop over all numbers
           while (phonesCursor.moveToNext()) {
-            long phoneId = phonesCursor.getLong(phonesCursor.getColumnIndex(PHONE_ID));
-            String number = phonesCursor.getString(phonesCursor.getColumnIndex(PHONE_NUM));
-            String type = phonesCursor.getString(phonesCursor.getColumnIndex(PHONE_TYPE));
+            long phoneId = phonesCursor.getLong(phonesCursor.getColumnIndex(Phone._ID));
+            String number = phonesCursor.getString(phonesCursor.getColumnIndex(Phone.NUMBER));
+            String type = phonesCursor.getString(phonesCursor.getColumnIndex(Phone.TYPE));
             contact.addNumber(new Number(phoneId, number, type));
           }
           phonesCursor.close();
@@ -81,7 +70,7 @@ public class InternationalizerCore {
       
       // Write to content provider
       ContentValues newValues = new ContentValues();
-      newValues.put(PHONE_NUM, internationalNumber);
+      newValues.put(Phone.NUMBER, internationalNumber);
       Uri currentPhoneUri = ContentUris.withAppendedId(Phone.CONTENT_URI, currentNumber.getId());
       totalUpdatedRows += cr.update(currentPhoneUri, newValues, null, null);
     }

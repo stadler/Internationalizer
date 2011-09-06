@@ -7,6 +7,7 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -22,10 +23,13 @@ import ch.jasta.internationalizer.R;
  * @author jacques
  */
 public class IntroActivity extends Activity {
+  
+  private final String TAG = this.getClass().getSimpleName();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.i(TAG, "Creating " + TAG + "...");
     setContentView(R.layout.country_selection);
     
     List<String> isoCountries = Arrays.asList(Locale.getISOCountries());
@@ -44,7 +48,7 @@ public class IntroActivity extends Activity {
         Intent intent = new Intent(v.getContext(), ContactListActivity.class);
         Spinner s = (Spinner) findViewById(R.id.country_selection_spinner);
         String selectedCountry = (String) s.getSelectedItem();
-        intent.putExtra("COUNTRY", selectedCountry);
+        intent.putExtra(ContactListActivity.EXTRA_COUNTRY, selectedCountry);
         startActivity(intent);
       }
       
