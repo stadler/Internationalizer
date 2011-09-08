@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
+import android.util.Log;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -26,7 +27,9 @@ import ch.jasta.internationalizer.model.Number;
  */
 public class InternationalizerCore {
   
-  public static List<Contact> getContacts(ContentResolver cr) {
+  private static final String TAG = InternationalizerCore.class.getSimpleName();
+  
+  public static List<Contact> getContacts(ContentResolver cr, String countryCode) {
     List<Contact> contacts = new LinkedList<Contact>();
     Cursor contactsCursor = cr.query(Contacts.CONTENT_URI, null, null, null, null);
     if (contactsCursor.getCount() > 0) {
@@ -46,7 +49,8 @@ public class InternationalizerCore {
             long phoneId = phonesCursor.getLong(phonesCursor.getColumnIndex(Phone._ID));
             String number = phonesCursor.getString(phonesCursor.getColumnIndex(Phone.NUMBER));
             String type = phonesCursor.getString(phonesCursor.getColumnIndex(Phone.TYPE));
-            contact.addNumber(new Number(phoneId, number, type));
+            String internationalNumber = getInternationalNumber(number, countryCode);
+            contact.addNumber(new Number(phoneId, number, type, internationalNumber));
           }
           phonesCursor.close();
         }
@@ -56,41 +60,39 @@ public class InternationalizerCore {
   }
   
   
-  public static int updateContact(ContentResolver cr, Contact contact, String countryCode) {
+  public static int updateContact(ContentResolver cr, Contact contact) {
     int totalUpdatedRows = 0;
     for (Number currentNumber : contact.getNumbers()) {
-      // Write to contact
-      String internationalNumber;
-      try {
-        internationalNumber = getInternationalNumber(currentNumber.getNumber(), countryCode);
-      } catch (NumberParseException e) {
-        continue;
-      }
-      currentNumber.setNumber(internationalNumber);
-      
       // Write to content provider
       ContentValues newValues = new ContentValues();
-      newValues.put(Phone.NUMBER, internationalNumber);
+      newValues.put(Phone.NUMBER, currentNumber.getInternationalNumber());
       Uri currentPhoneUri = ContentUris.withAppendedId(Phone.CONTENT_URI, currentNumber.getId());
       totalUpdatedRows += cr.update(currentPhoneUri, newValues, null, null);
+      currentNumber.setNumber(currentNumber.getInternationalNumber());
     }
     return totalUpdatedRows;
   }
   
-  public static int updateAllContacts(ContentResolver cr, String contryCode) {
-    List<Contact> contacts = getContacts(cr);
+  public static int updateAllContacts(ContentResolver cr, List<Contact> contacts) {
     int totalUpdatedNumbers = 0;
     for (Contact contact : contacts) {
-      totalUpdatedNumbers += updateContact(cr, contact, contryCode);
+      totalUpdatedNumbers += updateContact(cr, contact);
     }
     return totalUpdatedNumbers;
   }
   
-  public static String getInternationalNumber(String nationalNumber, String twoLetterCountry) throws NumberParseException {
+  public static String getInternationalNumber(String nationalNumber, String countryCode) {
     PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-    PhoneNumber phoneNumber = phoneUtil.parse(nationalNumber, twoLetterCountry);
+    PhoneNumber phoneNumber;
+    try {
+      phoneNumber = phoneUtil.parse(nationalNumber, countryCode);
+    } catch (NumberParseException e) {
+      Log.i(TAG, "Number " + nationalNumber + " could not be parsed for country code " + countryCode);
+      return nationalNumber;
+    }
     if (!phoneUtil.isValidNumber(phoneNumber)) {
-      throw new IllegalArgumentException("Phone number "+ phoneNumber +" is not valid.");
+      Log.w(TAG, "Number " + nationalNumber + " is not valid for country code " + countryCode);
+      return nationalNumber;
     }
     String internationalNumber = phoneUtil.format(phoneNumber, PhoneNumberFormat.INTERNATIONAL);
     return internationalNumber;

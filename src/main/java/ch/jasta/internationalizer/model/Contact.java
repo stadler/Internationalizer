@@ -36,11 +36,12 @@ public class Contact {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder
-    .append(displayName)
-    .append(":");
-    for (Number number : getNumbers()) {
-      builder.append("\n").append(number);
+    builder.append(displayName);
+    if (getNumbers().size() > 0) {
+      builder.append(":");
+      for (Number number : getNumbers()) {
+        builder.append("\n").append(number);
+      }
     }
     return builder.toString();
   }

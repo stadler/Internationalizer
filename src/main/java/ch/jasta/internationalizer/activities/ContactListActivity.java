@@ -2,11 +2,6 @@ package ch.jasta.internationalizer.activities;
 
 import java.util.List;
 
-import ch.jasta.internationalizer.R;
-import ch.jasta.internationalizer.core.FakeContactCreater;
-import ch.jasta.internationalizer.core.InternationalizerCore;
-import ch.jasta.internationalizer.model.Contact;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,11 +10,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+
+import ch.jasta.internationalizer.R;
+import ch.jasta.internationalizer.core.FakeContactCreater;
+import ch.jasta.internationalizer.core.InternationalizerCore;
+import ch.jasta.internationalizer.model.Contact;
 
 
 public class ContactListActivity extends Activity {
@@ -38,7 +38,7 @@ public class ContactListActivity extends Activity {
     setContentView(R.layout.contact_list);
     this.country = getIntent().getStringExtra(EXTRA_COUNTRY);
 
-    List<Contact> contacts = InternationalizerCore.getContacts(getContentResolver());
+    List<Contact> contacts = InternationalizerCore.getContacts(getContentResolver(), this.country);
     ListView lv = (ListView) findViewById(R.id.contact_list_view);
     lv.setAdapter(new ArrayAdapter<Contact>(this, R.layout.contact_list_item, contacts));
     lv.setTextFilterEnabled(true);
@@ -49,9 +49,11 @@ public class ContactListActivity extends Activity {
         ListView lv = (ListView) findViewById(R.id.contact_list_view);
         BaseAdapter listAdapter = (BaseAdapter) lv.getAdapter();
         Contact selectedContact = (Contact) listAdapter.getItem(position);
-        int updatedNumbers = InternationalizerCore.updateContact(getContentResolver(), selectedContact, country);
+        int updatedNumbers = InternationalizerCore.updateContact(getContentResolver(), selectedContact);
         // Update View
-        updateListAdapter(updatedNumbers);
+        listAdapter.notifyDataSetChanged();
+        Toast.makeText(getApplicationContext(), 
+            "Internationalized " + updatedNumbers + " Numbers.", Toast.LENGTH_SHORT).show();
       }
     });
   }
@@ -65,14 +67,18 @@ public class ContactListActivity extends Activity {
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    
       // Handle item selection
       switch (item.getItemId()) {
       case R.id.update_all_menu_entry:
           Log.v(TAG, "Update all clicked.");
           // Update all contacts
-          int updatedNumbers = InternationalizerCore.updateAllContacts(getContentResolver(), this.country);
+          List<Contact> contacts = InternationalizerCore.getContacts(getContentResolver(), this.country);
+          int updatedNumbers = InternationalizerCore.updateAllContacts(getContentResolver(), contacts);
           // Update View
-          updateListAdapter(updatedNumbers);
+          updateListAdapter(contacts);
+          Toast.makeText(getApplicationContext(), 
+              "Internationalized " + updatedNumbers + " Numbers.", Toast.LENGTH_SHORT).show();
           return true;
       case R.id.country_menu_entry:
         Log.v(TAG, "Country clicked.");
@@ -84,9 +90,11 @@ public class ContactListActivity extends Activity {
       case R.id.test_data_menu_entry:
         Log.v(TAG, "Generate Test Data clicked.");
         int nrOfContacts = 5;
-        FakeContactCreater.generateFakeContacts(getContentResolver(), this, nrOfContacts);
+        List<Contact> fakeContacts = FakeContactCreater.generateFakeContacts(getContentResolver(), this, nrOfContacts);
         // Update View
-        updateListAdapter(nrOfContacts);
+        updateListAdapter(fakeContacts);
+        Toast.makeText(getApplicationContext(), 
+            "Generated " + nrOfContacts + " fake Contacts.", Toast.LENGTH_SHORT).show();
         return true;
       
       default:
@@ -121,13 +129,12 @@ public class ContactListActivity extends Activity {
       // The activity is about to be destroyed.
   }
 
-  private void updateListAdapter(int updatedNumbers) {
+  private void updateListAdapter(List<Contact> contacts) {
     // Notify View and user
     ListView lv = (ListView) findViewById(R.id.contact_list_view);
-    BaseAdapter listAdapter = (BaseAdapter) lv.getAdapter();
+    ArrayAdapter<Contact> listAdapter = new ArrayAdapter<Contact>(this, R.layout.contact_list_item, contacts);
+    lv.setAdapter(listAdapter);
     listAdapter.notifyDataSetChanged();
-    String message = "Internationalized " + updatedNumbers + " Numbers.";
-    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
   }
 
 }

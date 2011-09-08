@@ -2,7 +2,6 @@ package ch.jasta.internationalizer.activities;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,7 +31,11 @@ public class IntroActivity extends Activity {
     Log.i(TAG, "Creating " + TAG + "...");
     setContentView(R.layout.country_selection);
     
-    List<String> isoCountries = Arrays.asList(Locale.getISOCountries());
+//    String[] isoCountriesArray = Locale.getISOCountries();
+    // FIXME: This is for test only
+    String[] isoCountriesArray = {"CH", "FR", "IT", "DE"};
+    List<String> isoCountries = Arrays.asList(isoCountriesArray);
+    
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(
         this, android.R.layout.simple_spinner_item, isoCountries);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
